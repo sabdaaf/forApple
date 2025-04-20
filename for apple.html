@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>for apple 🎂</title>
+    <style>
+      body {
+        background: #fdf2ab;
+        text-align: center;
+        font-family: sans-serif;
+        padding-top: 80px;
+        margin: 0;
+      }
+
+      h1 {
+        color: #e75480;
+        margin-bottom: 10px;
+      }
+
+      p {
+        color: #d64550;
+        margin-bottom: 30px;
+      }
+
+      .cake {
+        position: relative;
+        width: 190px;
+        height: 190px;
+        background: #ffb3c1;
+        border-radius: 50%;
+        margin: 100px auto;
+        box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .icing {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 160px;
+        height: 160px;
+        background: #fff0f5;
+        border-radius: 50%;
+        box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.1);
+        transform: translate(-50%, -50%);
+      }
+
+      .candle {
+        width: 10px;
+        height: 35px;
+        background: white;
+        position: absolute;
+        top: 50px;
+        left: 50%;
+        transform: translateX(-50%, -50%);
+        z-index: 3;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      }
+
+      .flame {
+        width: 10px;
+        height: 20px;
+        background: orange;
+        border-radius: 50%;
+        position: absolute;
+        top: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        animation: flicker 0.2s infinite alternate;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @keyframes flicker {
+        0% {
+          transform: translateX(-50%) scaleY(1);
+          opacity: 0.9;
+        }
+        100% {
+          transform: translateX(-50%) scaleY(1.2);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Happy Birthday, Apple!! <a href="https://open.spotify.com/playlist/4S6jkugeYFhWnzRpjmmegJ?si=F-h4SnBaRNiWkGlTdxQWrA&pi=5zq_-UwhQzW3J&pt_success=1&nd=1&dlsi=a1daf1c74a0e4345">🎉</a></h1>
+    <p>make a wish sebelum niup lilin 🎂🌬️</p>
+    <p>NB: lilinnya sensitif sebelum doa jangan niup/ngomong(kalo mati refresh aja wkwkkw)</p>
+
+    <div class="cake">
+      <div class="candle">
+        <div id="flame" class="flame"></div>
+      </div>
+      <div class="icing"></div>
+    </div>
+
+    <script>
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const source = audioCtx.createMediaStreamSource(stream);
+          const analyser = audioCtx.createAnalyser();
+
+          analyser.fftSize = 256;
+          const dataArray = new Uint8Array(analyser.frequencyBinCount);
+          source.connect(analyser);
+
+          const flame = document.getElementById("flame");
+          let blowTimer = 0;
+          const blowThreshold = 10; // lebih sensitif (10 frame)
+          let alreadyBlown = false;
+
+          function detectBlow() {
+            analyser.getByteFrequencyData(dataArray);
+            let total = 0,
+              low = 0;
+
+            for (let i = 0; i < dataArray.length; i++) {
+              total += dataArray[i];
+              if (i < dataArray.length * 0.1) low += dataArray[i];
+            }
+
+            const isBlowing = total > 1200 && low / total > 0.3;
+
+            if (isBlowing) {
+              blowTimer++;
+            } else {
+              blowTimer = Math.max(0, blowTimer - 1);
+            }
+
+            if (blowTimer > blowThreshold && !alreadyBlown) {
+              alreadyBlown = true;
+              flame.classList.add("hidden");
+            }
+
+            requestAnimationFrame(detectBlow);
+          }
+
+          detectBlow();
+        })
+        .catch(() => alert("Aktifkan izin mikrofon untuk bisa meniup lilinnya 🎤"));
+    </script>
+  </body>
+</html>
